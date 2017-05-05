@@ -57,7 +57,7 @@
         "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
       }
     },
-    "VMSize1": {
+    "VMSize": {
       "type": "string",
       "defaultValue": "Basic_A2",
       "allowedValues": [
@@ -164,8 +164,8 @@
   }, //End of Parameters
 
   "variables": {
-
-    "DomUserNameSlashes": "[concat('\\',parameters('DomUserName'))]",
+    "DoubleSlashes": "\\",
+    "DomUserNameSlashes": "[concat(variables('DoubleSlashes'),parameters('DomUserName'))]",
 
     "subnetRef": "[concat('/subscriptions/',parameters('SubscriptionID'),'/resourceGroups/',parameters('VNetRG'),'/providers/Microsoft.Network/virtualNetworks/',parameters('VnetName'),'/subnets/',parameters('SubnetName'))]",
 
@@ -189,7 +189,7 @@
 
     "VMObject": {
       "Name": "[parameters('VMName')]",
-      "Size": "[parameters('VMSize1')]",
+      "Size": "[parameters('VMSize')]",
       //     "ASName": "[variables('ASObject2').Name]",
       "nicName": "[variables('NICObject5').Name]",
       "adminUserName": "[parameters('adminUsername')]",
