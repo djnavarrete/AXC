@@ -1,0 +1,165 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"namePrefix": {
+			"type": "string"
+		},
+		"domainName": {
+			"type": "string"
+		},
+		"dnsServerName": {
+			"type": "string"
+		},
+		"adminUsername": {
+			"type": "string"
+		},
+		"adminPassword": {
+			"type": "securestring"
+		},
+		"sqlServerServiceAccountUserName": {
+			"type": "string"
+		},
+		"sqlServerServiceAccountPassword": {
+			"type": "securestring"
+		},
+		"storageAccountType": {
+			"type": "securestring"
+		},
+		"nicSubnetUri": {
+			"type": "string"
+		},
+		"lbSubnetUri": {
+			"type": "string"
+		},
+		"sqlLBIPAddress": {
+			"type": "string"
+		},
+		"sqlVMSize": {
+			"type": "string"
+		},
+		"sqlWitnessVMSize": {
+			"type": "string"
+		},
+		"_artifactsLocation": {
+			"type": "string"
+		},
+		"_artifactsLocationSasToken": {
+			"type": "string"
+		},
+		"windowsImagePublisher": {
+			"type": "string",
+			"defaultValue": "MicrosoftSQLServer"
+		},
+		"windowsImageOffer": {
+			"type": "string",
+			"defaultValue": "SQL2014SP1-WS2012R2"
+		},
+		"windowsImageSKU": {
+			"type": "string",
+			"defaultValue": "Enterprise"
+		},
+		"windowsImageVersion": {
+			"type": "string",
+			"defaultValue": "latest"
+		}
+	},
+  "variables": {
+    "apiVersionStorage": "2015-06-15",
+    "sqlDiskSize": 1000,
+    "sqlWitnessDiskSize": 128,
+    "sqlNamePrefix": "[parameters('namePrefix')]", //"[concat(parameters('namePrefix'),'-sql-')]",
+    "sqlAvailabilitySetName": "[concat(variables('sqlNamePrefix'),'as')]",
+    "sqlLBName": "[concat(variables('sqlNamePrefix'),'ilb')]",
+    "sqllbID": "[resourceId('Microsoft.Network/loadBalancers',variables('sqlLBName'))]",
+    "lbFE1": "[concat(variables('sqlNamePrefix'),'ilbfe1')]",
+    "lbBE": "[concat(variables('sqlNamePrefix'),'ilbbe')]",
+    "sqlLBID": "[resourceId('Microsoft.Network/loadBalancers',variables('sqlLBName'))]",
+    "sqlLBFEConfigID1": "[concat(variables('sqllbID'),'/frontendIPConfigurations/',variables('lbFE1'))]",
+    "sqlLBBEAddressPoolID": "[concat(variables('sqllbID'),'/backendAddressPools/',variables('lbBE'))]",
+    "sqlAOProbe1": "[concat(variables('sqlNamePrefix'),'ilbp1')]",
+    "sqlLBProbeID1": "[concat(variables('sqllbID'),'/probes/',variables('sqlAOProbe1'))]",
+    "sqlStorageAccountPrefix": "[concat(parameters('namePrefix'),'sqlsa')]", //"[concat(parameters('namePrefix'),take(uniqueString(resourceGroup().id),8),'sql')]",
+    "sqlWitnessStorageAccountName": "[concat(parameters('namePrefix'),'witnesssa')]", //"[concat(parameters('namePrefix'),take(uniqueString(resourceGroup().id),8),'wit')]",
+    "vmContainerName": "vhds",
+    "deploySqlWitnessShare": "deploySqlWitnessShare",
+    "deploySqlWitnessShareId": "[concat('Microsoft.Resources/deployments/', variables('deploySqlWitnessShare'))]",
+    "deploySqlWitnessShareTemplateUrl": "[concat(parameters('_artifactsLocation'),'/nested/deploy-sql-witness.json',parameters('_artifactsLocationSasToken'))]",
+    "sqlWitnessSharePath": "[concat(parameters('namePrefix'),'-fsw')]",
+    "sqlWitnessVMName": "[concat(variables('sqlNamePrefix'),'w')]",
+    "deploySqlAlwaysOn": "deploySqlAlwaysOn",
+    "deploySqlAlwaysOnTemplateUrl": "[concat(parameters('_artifactsLocation'),'/nested/deploy-sql-alwayson.json',parameters('_artifactsLocationSasToken'))]",
+    "sqlAOEPName": "[concat(parameters('namePrefix'),'-agep')]",
+    "sqlAOAGName1": "[concat(parameters('namePrefix'),'-ag1')]",
+    "sqlAOListener1": "[concat(parameters('namePrefix'),'-agl1')]"
+  },
+	"resources": [
+		{
+			"name": "[variables('deploySqlAlwaysOn')]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2015-01-01",
+			"dependsOn": [],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('deploySqlAlwaysOnTemplateUrl')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"sqlNamePrefix": {
+						"value": "[variables('sqlNamePrefix')]"
+					},
+					"domainName": {
+						"value": "[parameters('domainName')]"
+					},
+					"namePrefix": {
+						"value": "[parameters('namePrefix')]"
+					},
+					"sharePath": {
+						"value": "[variables('sqlWitnessSharePath')]"
+					},
+					"sqlWitnessVMName": {
+						"value": "[variables('sqlWitnessVMName')]"
+					},
+					"sqlLBName": {
+						"value": "[variables('sqlLBName')]"
+					},
+					"sqlLBIPAddress": {
+						"value": "[parameters('sqlLBIPAddress')]"
+					},
+					"dnsServerName": {
+						"value": "[parameters('dnsServerName')]"
+					},
+					"sqlServerServiceAccountUserName": {
+						"value": "[parameters('sqlServerServiceAccountUserName')]"
+					},
+					"sqlServerServiceAccountPassword": {
+						"value": "[parameters('sqlServerServiceAccountPassword')]"
+					},
+					"adminUsername": {
+						"value": "[parameters('adminUsername')]"
+					},
+					"adminPassword": {
+						"value": "[parameters('adminPassword')]"
+					},
+					"_artifactsLocation": {
+						"value": "[parameters('_artifactsLocation')]"
+					},
+					"_artifactsLocationSasToken": {
+						"value": "[parameters('_artifactsLocationSasToken')]"
+					},
+					"sqlAlwaysOnEndpointName": {
+						"value": "[variables('sqlAOEPName')]"
+					},
+					"sqlAlwaysOnAvailabilityGroupName1": {
+						"value": "[variables('sqlAOAGName1')]"
+					},
+					"sqlAlwaysOnAvailabilityGroupListenerName1": {
+						"value": "[variables('sqlAOListener1')]"
+					}
+				}
+			}
+		}
+	],
+	"outputs": {}
+}
