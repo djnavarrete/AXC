@@ -312,7 +312,7 @@
       "metadata": {
         "description": "The Sql AlwaysOn Group Name"
       },
-      "defaultValue": "alwayson-ag"
+      "defaultValue": "2alwayson-ag"
     },
     "sqlAOListenerPort": {
       "type": "string",
@@ -326,7 +326,7 @@
       "metadata": {
         "description": "The Sql AG Listener Name"
       },
-      "defaultValue": "alwayson-ag-listener"
+      "defaultValue": "2alwayson-ag-listener"
     },
     "sqlServerVersion": {
       "type": "string",
