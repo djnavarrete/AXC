@@ -5,9 +5,6 @@
     "location": {
       "type": "string"
     },
-    "virtualNetworkAddressRange": {
-      "type": "string"
-    },
     "sql1AddressNameWithSuffix": {
       "type": "string"
     },
