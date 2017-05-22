@@ -160,7 +160,7 @@ configuration ConfigSFCI
 
         Script EnableS2D
         {
-            SetScript = "Enable-ClusterS2D -Confirm:0; New-Volume -StoragePoolFriendlyName S2D* -FriendlyName VDisk01 -FileSystem NTFS -DriveLetter ${driveLetter} -UseMaximumSize"
+            SetScript = "Enable-ClusterS2D -Confirm:0; New-Volume -StoragePoolFriendlyName S2D* -FriendlyName VDisk01 -FileSystem CSVFS_REFS -UseMaximumSize"
             TestScript = "(Get-StoragePool -FriendlyName S2D*).OperationalStatus -eq 'OK'"
             GetScript = "@{Ensure = if ((Get-StoragePool -FriendlyName S2D*).OperationalStatus -eq 'OK') {'Present'} Else {'Absent'}}"
             DependsOn = "[Script]MoveClusterGroups1"
@@ -242,12 +242,12 @@ configuration ConfigSFCI
             Features = "SQLENGINE,AS"
             InstanceName = "MSSQLSERVER"
             FailoverClusterNetworkName = $SQLClusterName
-            InstallSQLDataDir = "S:\SQLDB"
-            ASDataDir = "S:\OLAP\Data"
-            ASLogDir = "S:\OLAP\Log"
-            ASBackupDir = "S:\OLAP\Backup"
-            ASTempDir = "S:\OLAP\Temp"
-            ASConfigDir = "S:\OLAP\Config"
+            InstallSQLDataDir = "C:\ClusterStorage\Volume1\SQLDB"
+            ASDataDir = "C:\ClusterStorage\Volume1\OLAP\Data"
+            ASLogDir = "C:\ClusterStorage\Volume1\OLAP\Log"
+            ASBackupDir = "C:\ClusterStorage\Volume1\OLAP\Backup"
+            ASTempDir = "C:\ClusterStorage\Volume1\OLAP\Temp"
+            ASConfigDir = "C:\ClusterStorage\Volume1\OLAP\Config"
             FailoverClusterIPAddress = $clusterIP
             SQLSvcAccount = $ServiceCreds
             SQLSysAdminAccounts = $AdminUserNames
